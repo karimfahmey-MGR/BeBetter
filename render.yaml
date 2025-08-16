@@ -74,4 +74,6 @@ services:
 databases:
   # PostgreSQL database
   - name: bebetter-db
-    plan: starter
+    plan: basic-1gb    # Use a flexible plan; e.g. basic-1gb or basic-256mb
+    # optional: diskSizeGB: 15   # default sizes apply per tier
+
