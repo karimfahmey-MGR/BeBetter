@@ -1,16 +1,15 @@
 FROM node:20-alpine
 
-# Install Directus CLI globally.  Using the CLI inside a container allows us to run
-# the web service as well as the worker with the same image.
-RUN npm install -g @directus/cli@latest
+# Install the Directus package (includes the CLI and server)
+RUN npm install -g directus
 
 WORKDIR /app
 
-# Copy worker script and any extensions (none yet) into the image.
+# (Optional) copy your Directus config files here
+# COPY directus.config.js ./directus.config.js
+# COPY extensions ./extensions
 
-# Expose the default Directus port
 EXPOSE 8055
 
-# By default start the Directus server.  The worker service will override the
-# command in render.yaml to run `node worker.js` instead.
+# Start Directus via the CLI
 CMD ["directus", "start"]
