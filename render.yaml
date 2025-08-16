@@ -7,34 +7,32 @@ services:
     plan: starter
     autoDeploy: true
     envVars:
-      # Connection string to PostgreSQL provided by the Render database service
+      # Connection string to PostgreSQL provided by the database
       - key: DB_CONNECTION_STRING
         fromDatabase:
           name: bebetter-db
           property: connectionString
-      # Connection string to Redis/key‑value store (cache)
+      # Connection string to the Redis cache (key‑value store)
       - key: CACHE_CONNECTION_STRING
         fromService:
           type: keyvalue
           name: bebetter-cache
           property: connectionString
-      # Admin credentials you set in Render Secrets
+      # Directus admin credentials and public URL (set in Render secrets)
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
-      # Public base URL of your Directus instance
       - key: PUBLIC_URL
         sync: false
       # Disable Directus telemetry
       - key: DIRECTUS_TELEMETRY
         value: "false"
 
-  # Background worker to run flows and other tasks
+  # Background worker
   - type: worker
-    name: directus-worker
-    runtime: docker
-    dockerfilePath: ./directus/Dockerfile
+  - name: directus-worker
+    runtime: node
     plan: starter
     autoDeploy: true
     startCommand: node worker.js
@@ -60,7 +58,7 @@ services:
     name: nightly-housekeeping
     runtime: python
     schedule: "0 2 * * *"
-    buildCommand: "true"  # no build needed
+    buildCommand: "true"
     startCommand: |
       curl -X POST "$PUBLIC_URL/flows/nightly_housekeeping/run" -H "Authorization: Bearer $ADMIN_TOKEN" || true
     envVars:
@@ -69,7 +67,7 @@ services:
       - key: ADMIN_TOKEN
         sync: false
 
-  # Redis-like key-value store (cache)
+  # Key-value (Redis) cache
   - type: keyvalue
     name: bebetter-cache
     plan: starter
@@ -78,6 +76,6 @@ services:
         description: all
 
 databases:
-  # PostgreSQL database for Directus
+  # PostgreSQL database
   - name: bebetter-db
     plan: starter
