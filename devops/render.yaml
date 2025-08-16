@@ -1,77 +1,25 @@
 services:
-  # Directus web service
   - type: web
     name: directus
-    env: node
+    runtime: docker
     dockerfilePath: ./directus/Dockerfile
-    plan: starter
-    autoDeploy: true
+    plan: free            # Use Render’s free web service
     envVars:
-      # Connection string to PostgreSQL provided by the Render database service
+      - key: DB_CLIENT
+        value: pg 
       - key: DB_CONNECTION_STRING
         fromDatabase:
           name: bebetter-db
           property: connectionString
-      # Connection string to Redis (key–value store) provided by the Render cache service
-      - key: CACHE_CONNECTION_STRING
-        fromService:
-          name: bebetter-cache
-          property: connectionString
-      # Directus admin email and password (set these secrets in Render before deploy)
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
-      # Public URL used by mobile clients to access APIs
       - key: PUBLIC_URL
         sync: false
-      # Enable Directus telemetry (optional)
       - key: DIRECTUS_TELEMETRY
         value: "false"
 
-  # Worker service to handle background tasks
-  - type: worker
-    name: directus-worker
-    env: node
-    dockerfilePath: ./directus/Dockerfile
-    plan: starter
-    autoDeploy: true
-    command: node worker.js
-    envVars:
-      - key: DB_CONNECTION_STRING
-        fromDatabase:
-          name: bebetter-db
-          property: connectionString
-      - key: CACHE_CONNECTION_STRING
-        fromService:
-          name: bebetter-cache
-          property: connectionString
-      - key: ADMIN_EMAIL
-        sync: false
-      - key: ADMIN_PASSWORD
-        sync: false
-      - key: PUBLIC_URL
-        sync: false
-
-  # Cron job to run nightly housekeeping at 02:00 UTC
-  - type: cron
-    name: nightly-housekeeping
-    schedule: "0 2 * * *"
-    command: |
-      curl -X POST "$PUBLIC_URL/flows/nightly_housekeeping/run" -H "Authorization: Bearer $ADMIN_TOKEN" || true
-    env: docker
-    envVars:
-      - key: PUBLIC_URL
-        sync: false
-      - key: ADMIN_TOKEN
-        sync: false
-
 databases:
   - name: bebetter-db
-    type: postgres
-    plan: starter
-
-caches:
-  - name: bebetter-cache
-    type: redis
-    plan: starter
+    plan: free            # Use Render’s free Postgres
