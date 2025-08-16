@@ -7,31 +7,27 @@ services:
     plan: starter
     autoDeploy: true
     envVars:
-      # Connection string to PostgreSQL provided by the database
       - key: DB_CONNECTION_STRING
         fromDatabase:
           name: bebetter-db
           property: connectionString
-      # Connection string to the Redis cache (key‑value store)
       - key: CACHE_CONNECTION_STRING
         fromService:
           type: keyvalue
           name: bebetter-cache
           property: connectionString
-      # Directus admin credentials and public URL (set in Render secrets)
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
       - key: PUBLIC_URL
         sync: false
-      # Disable Directus telemetry
       - key: DIRECTUS_TELEMETRY
         value: "false"
 
   # Background worker
   - type: worker
-  - name: directus-worker
+    name: directus-worker
     runtime: node
     plan: starter
     autoDeploy: true
