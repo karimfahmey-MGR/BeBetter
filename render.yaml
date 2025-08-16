@@ -57,8 +57,7 @@ services:
   - type: cron
     name: nightly-housekeeping
     schedule: "0 2 * * *"
-    #command: |
-      curl -X POST "$PUBLIC_URL/flows/nightly_housekeeping/run" -H "Authorization: Bearer $ADMIN_TOKEN" || true
+    command:  curl -X POST "$PUBLIC_URL/flows/nightly_housekeeping/run" -H "Authorization: Bearer $ADMIN_TOKEN" || true
     env: docker
     envVars:
       - key: PUBLIC_URL
