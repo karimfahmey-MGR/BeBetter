@@ -1,20 +1,13 @@
 services:
-  # Directus web service
   - type: web
     name: directus
     runtime: docker
     dockerfilePath: ./directus/Dockerfile
-    plan: starter
-    autoDeploy: true
+    plan: free            # Use Render’s free web service
     envVars:
       - key: DB_CONNECTION_STRING
         fromDatabase:
           name: bebetter-db
-          property: connectionString
-      - key: CACHE_CONNECTION_STRING
-        fromService:
-          type: keyvalue
-          name: bebetter-cache
           property: connectionString
       - key: ADMIN_EMAIL
         sync: false
@@ -25,55 +18,6 @@ services:
       - key: DIRECTUS_TELEMETRY
         value: "false"
 
-  # Background worker
-  - type: worker
-    name: directus-worker
-    runtime: node
-    plan: starter
-    autoDeploy: true
-    startCommand: node worker.js
-    envVars:
-      - key: DB_CONNECTION_STRING
-        fromDatabase:
-          name: bebetter-db
-          property: connectionString
-      - key: CACHE_CONNECTION_STRING
-        fromService:
-          type: keyvalue
-          name: bebetter-cache
-          property: connectionString
-      - key: ADMIN_EMAIL
-        sync: false
-      - key: ADMIN_PASSWORD
-        sync: false
-      - key: PUBLIC_URL
-        sync: false
-
-  # Cron job to run nightly housekeeping at 02:00 UTC
-  - type: cron
-    name: nightly-housekeeping
-    runtime: python
-    schedule: "0 2 * * *"
-    buildCommand: "true"
-    startCommand: |
-      curl -X POST "$PUBLIC_URL/flows/nightly_housekeeping/run" -H "Authorization: Bearer $ADMIN_TOKEN" || true
-    envVars:
-      - key: PUBLIC_URL
-        sync: false
-      - key: ADMIN_TOKEN
-        sync: false
-
-  # Key-value (Redis) cache
-  - type: keyvalue
-    name: bebetter-cache
-    plan: starter
-    ipAllowList:
-      - source: 0.0.0.0/0
-        description: all
-
 databases:
-  # PostgreSQL database
   - name: bebetter-db
-    plan: basic-1gb    # Use a flexible plan; e.g. basic-1gb or basic-256mb
-    # optional: diskSizeGB: 15   # default sizes apply per tier
-
+    plan: free            # Use Render’s free Postgres
