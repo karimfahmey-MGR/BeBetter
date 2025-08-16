@@ -36,7 +36,7 @@ services:
     dockerfilePath: ./directus/Dockerfile
     plan: starter
     autoDeploy: true
-    command: node worker.js
+    #command: node worker.js
     envVars:
       - key: DB_CONNECTION_STRING
         fromDatabase:
@@ -57,7 +57,7 @@ services:
   - type: cron
     name: nightly-housekeeping
     schedule: "0 2 * * *"
-    command: |
+    #command: |
       curl -X POST "$PUBLIC_URL/flows/nightly_housekeeping/run" -H "Authorization: Bearer $ADMIN_TOKEN" || true
     env: docker
     envVars:
@@ -68,10 +68,5 @@ services:
 
 databases:
   - name: bebetter-db
-    type: postgres
-    plan: starter
-
-caches:
-  - name: bebetter-cache
-    type: redis
+   # type: postgres
     plan: starter
