@@ -2,7 +2,7 @@ FROM node:20-alpine
 
 # Install Directus CLI globally.  Using the CLI inside a container allows us to run
 # the web service as well as the worker with the same image.
-RUN npm install -g @directus/cli@10.10.4
+RUN npm install -g @directus/cli@latest
 
 WORKDIR /app
 
