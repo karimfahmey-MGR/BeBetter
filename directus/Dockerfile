@@ -12,4 +12,5 @@ WORKDIR /app
 EXPOSE 8055
 
 # Start Directus via the CLI
-CMD ["directus", "start"]
+# Run bootstrap (creates tables and first admin) then start the server
+CMD ["sh", "-c", "directus bootstrap && directus start"]
