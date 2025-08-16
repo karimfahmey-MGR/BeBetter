@@ -5,6 +5,8 @@ services:
     dockerfilePath: ./directus/Dockerfile
     plan: free            # Use Render’s free web service
     envVars:
+      - key: DB_CLIENT
+        value: pg 
       - key: DB_CONNECTION_STRING
         fromDatabase:
           name: bebetter-db
