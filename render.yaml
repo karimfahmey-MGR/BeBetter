@@ -2,7 +2,7 @@ services:
   # Directus web service
   - type: web
     name: directus
-    env: node
+    runtime: docker
     dockerfilePath: ./directus/Dockerfile
     plan: starter
     autoDeploy: true
@@ -12,31 +12,32 @@ services:
         fromDatabase:
           name: bebetter-db
           property: connectionString
-      # Connection string to Redis (key–value store) provided by the Render cache service
+      # Connection string to Redis/key‑value store (cache)
       - key: CACHE_CONNECTION_STRING
         fromService:
+          type: keyvalue
           name: bebetter-cache
           property: connectionString
-      # Directus admin email and password (set these secrets in Render before deploy)
+      # Admin credentials you set in Render Secrets
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
-      # Public URL used by mobile clients to access APIs
+      # Public base URL of your Directus instance
       - key: PUBLIC_URL
         sync: false
-      # Enable Directus telemetry (optional)
+      # Disable Directus telemetry
       - key: DIRECTUS_TELEMETRY
         value: "false"
 
-  # Worker service to handle background tasks
+  # Background worker to run flows and other tasks
   - type: worker
     name: directus-worker
-    env: node
+    runtime: docker
     dockerfilePath: ./directus/Dockerfile
     plan: starter
     autoDeploy: true
-    #command: node worker.js
+    startCommand: node worker.js
     envVars:
       - key: DB_CONNECTION_STRING
         fromDatabase:
@@ -44,6 +45,7 @@ services:
           property: connectionString
       - key: CACHE_CONNECTION_STRING
         fromService:
+          type: keyvalue
           name: bebetter-cache
           property: connectionString
       - key: ADMIN_EMAIL
@@ -53,8 +55,29 @@ services:
       - key: PUBLIC_URL
         sync: false
 
+  # Cron job to run nightly housekeeping at 02:00 UTC
+  - type: cron
+    name: nightly-housekeeping
+    runtime: python
+    schedule: "0 2 * * *"
+    buildCommand: "true"  # no build needed
+    startCommand: |
+      curl -X POST "$PUBLIC_URL/flows/nightly_housekeeping/run" -H "Authorization: Bearer $ADMIN_TOKEN" || true
+    envVars:
+      - key: PUBLIC_URL
+        sync: false
+      - key: ADMIN_TOKEN
+        sync: false
+
+  # Redis-like key-value store (cache)
+  - type: keyvalue
+    name: bebetter-cache
+    plan: starter
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: all
 
 databases:
+  # PostgreSQL database for Directus
   - name: bebetter-db
-   # type: postgres
     plan: starter
