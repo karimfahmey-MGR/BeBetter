@@ -7,7 +7,6 @@ RUN npm install -g @directus/cli@10.10.4
 WORKDIR /app
 
 # Copy worker script and any extensions (none yet) into the image.
-COPY worker.js ./worker.js
 
 # Expose the default Directus port
 EXPOSE 8055
