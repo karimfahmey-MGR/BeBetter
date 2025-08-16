@@ -53,17 +53,6 @@ services:
       - key: PUBLIC_URL
         sync: false
 
-  # Cron job to run nightly housekeeping at 02:00 UTC
-  - type: cron
-    name: nightly-housekeeping
-    schedule: "0 2 * * *"
-    command:  curl -X POST "$PUBLIC_URL/flows/nightly_housekeeping/run" -H "Authorization: Bearer $ADMIN_TOKEN" || true
-    env: docker
-    envVars:
-      - key: PUBLIC_URL
-        sync: false
-      - key: ADMIN_TOKEN
-        sync: false
 
 databases:
   - name: bebetter-db
